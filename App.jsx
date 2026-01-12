@@ -1,5 +1,456 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, CheckCircle, Circle, Book, Terminal, AlertCircle, ChevronRight, Home, RefreshCw, GitBranch, Cloud, Lock, Zap, Trophy } from 'lucide-react';
+import { Play, CheckCircle, Circle, Book, Terminal, AlertCircle, ChevronRight, Home, RefreshCw, GitBranch, Cloud, Lock, Zap, Trophy, FileText } from 'lucide-react';
+
+const DocumentationContent = () => {
+  const [selectedCommand, setSelectedCommand] = useState('overview');
+
+  const gitCommands = {
+    overview: {
+      title: 'Git Overview',
+      content: `Git is a distributed version control system for tracking changes in source code.
+
+BASIC CONCEPTS:
+- Repository: A collection of files and their complete history
+- Commit: A snapshot of your repository at a point in time
+- Branch: A parallel version of your repository
+- Remote: A version of your project hosted on the internet or network
+
+WORKFLOW:
+1. Modify files in your working directory
+2. Stage changes with 'git add'
+3. Commit changes with 'git commit'
+4. Push to remote with 'git push'`
+    },
+    init: {
+      title: 'git init',
+      content: `Initialize a new Git repository.
+
+SYNTAX:
+  git init [<directory>]
+
+DESCRIPTION:
+  Creates a new Git repository in the specified directory (or current directory if none specified).
+
+OPTIONS:
+  --bare
+    Create a bare repository (no working directory)
+
+EXAMPLES:
+  git init
+  git init my-project
+  git init --bare shared-repo`
+    },
+    add: {
+      title: 'git add',
+      content: `Add file contents to the staging area.
+
+SYNTAX:
+  git add [<options>] [--] <pathspec>...
+
+DESCRIPTION:
+  Stages changes for the next commit. Files can be added individually or all at once.
+
+OPTIONS:
+  -A, --all
+    Stage all changes (new, modified, deleted)
+  -u, --update
+    Stage only modified and deleted files
+  -p, --patch
+    Interactively choose hunks to stage
+  --dry-run
+    Show what would be staged without actually staging
+
+EXAMPLES:
+  git add file.txt
+  git add .
+  git add -A
+  git add -p
+  git add *.js`
+    },
+    commit: {
+      title: 'git commit',
+      content: `Record changes to the repository.
+
+SYNTAX:
+  git commit [<options>] [--] <pathspec>...
+
+DESCRIPTION:
+  Creates a new commit with the currently staged changes.
+
+OPTIONS:
+  -m, --message <msg>
+    Use the given message as the commit message
+  -a, --all
+    Automatically stage files that have been modified and deleted
+  --amend
+    Amend the previous commit instead of creating a new one
+  --no-verify
+    Bypass pre-commit and commit-msg hooks
+
+EXAMPLES:
+  git commit -m "Add new feature"
+  git commit -am "Quick commit"
+  git commit --amend
+  git commit --amend -m "New message"`
+    },
+    status: {
+      title: 'git status',
+      content: `Show the working tree status.
+
+SYNTAX:
+  git status [<options>] [--] [<pathspec>...]
+
+DESCRIPTION:
+  Displays the state of the working directory and staging area.
+
+OPTIONS:
+  -s, --short
+    Give the output in the short-format
+  -b, --branch
+    Show the branch and tracking info
+  --porcelain
+    Give the output in a stable, easy-to-parse format
+
+EXAMPLES:
+  git status
+  git status -s
+  git status --short`
+    },
+    log: {
+      title: 'git log',
+      content: `Show commit logs.
+
+SYNTAX:
+  git log [<options>] [<revision-range>] [[--] <path>]
+
+DESCRIPTION:
+  Lists commits in reverse chronological order.
+
+OPTIONS:
+  --oneline
+    Show each commit on a single line
+  -n, --max-count <number>
+    Limit the number of commits
+  --graph
+    Draw a text-based graphical representation
+  --all
+    Show all branches
+  --decorate
+    Show ref names
+  -p, --patch
+    Show the patch (diff) for each commit
+  --stat
+    Show statistics about files changed
+
+EXAMPLES:
+  git log
+  git log --oneline
+  git log -5
+  git log --graph --oneline --all
+  git log --stat`
+    },
+    branch: {
+      title: 'git branch',
+      content: `List, create, or delete branches.
+
+SYNTAX:
+  git branch [<options>] [-r | -a] [--merged | --no-merged]
+  git branch [<options>] [-f] <branchname> [<start-point>]
+  git branch [<options>] [-d | -D] <branchname>...
+
+DESCRIPTION:
+  Without arguments, lists existing branches. With a branch name, creates a new branch.
+
+OPTIONS:
+  -a, --all
+    List both remote-tracking and local branches
+  -r, --remotes
+    List remote-tracking branches
+  -d, --delete
+    Delete a branch (only if merged)
+  -D
+    Force delete a branch
+  -m, --move
+    Rename a branch
+  --merged
+    List only merged branches
+
+EXAMPLES:
+  git branch
+  git branch feature-x
+  git branch -a
+  git branch -d old-feature
+  git branch -m old-name new-name`
+    },
+    checkout: {
+      title: 'git checkout / switch',
+      content: `Switch branches or restore working tree files.
+
+SYNTAX:
+  git checkout [<options>] <branch>
+  git checkout -b <new-branch> [<start-point>]
+  git switch [<options>] <branch>
+  git switch -c <new-branch> [<start-point>]
+
+DESCRIPTION:
+  Switches to the specified branch or creates a new branch and switches to it.
+
+OPTIONS:
+  -b <branch>
+    Create a new branch and switch to it
+  -c <branch>
+    Create a new branch and switch to it (git switch)
+  --track
+    Set up tracking information
+
+EXAMPLES:
+  git checkout main
+  git checkout -b feature-x
+  git switch main
+  git switch -c feature-x`
+    },
+    merge: {
+      title: 'git merge',
+      content: `Join two or more development histories together.
+
+SYNTAX:
+  git merge [<options>] [<commit>...]
+
+DESCRIPTION:
+  Incorporates changes from the named commits into the current branch.
+
+OPTIONS:
+  --no-ff
+    Create a merge commit even if fast-forward is possible
+  --squash
+    Create a single commit instead of merging
+  --abort
+    Abort the current merge
+  -m <msg>
+    Set the merge commit message
+
+EXAMPLES:
+  git merge feature-x
+  git merge --no-ff feature-x
+  git merge --squash feature-x
+  git merge --abort`
+    },
+    rebase: {
+      title: 'git rebase',
+      content: `Reapply commits on top of another base tip.
+
+SYNTAX:
+  git rebase [<options>] [<upstream>] [<branch>]
+  git rebase [<options>] --interactive [<base>]
+
+DESCRIPTION:
+  Takes commits from one branch and replays them on another branch.
+
+OPTIONS:
+  -i, --interactive
+    Start an interactive rebase session
+  --continue
+    Continue the rebase after resolving conflicts
+  --abort
+    Abort the rebase operation
+  --skip
+    Skip the current commit
+
+INTERACTIVE REBASE COMMANDS:
+  pick, p    Use commit as-is
+  reword, r  Use commit, but edit the message
+  edit, e    Use commit, but stop for amending
+  squash, s  Use commit, but meld into previous
+  fixup, f   Like squash, but discard message
+  drop, d    Remove commit
+
+EXAMPLES:
+  git rebase main
+  git rebase -i HEAD~3
+  git rebase --continue
+  git rebase --abort`
+    },
+    remote: {
+      title: 'git remote',
+      content: `Manage set of tracked repositories.
+
+SYNTAX:
+  git remote [-v | --verbose]
+  git remote add <name> <url>
+  git remote remove <name>
+  git remote set-url <name> <url>
+
+DESCRIPTION:
+  Manages remote repository connections.
+
+OPTIONS:
+  -v, --verbose
+    Show remote URLs
+
+EXAMPLES:
+  git remote
+  git remote -v
+  git remote add origin https://github.com/user/repo.git
+  git remote remove origin
+  git remote set-url origin https://github.com/user/newrepo.git`
+    },
+    fetch: {
+      title: 'git fetch',
+      content: `Download objects and refs from another repository.
+
+SYNTAX:
+  git fetch [<options>] [<repository> [<refspec>...]]
+
+DESCRIPTION:
+  Downloads commits, files, and refs from a remote repository without merging.
+
+OPTIONS:
+  --all
+    Fetch all remotes
+  --prune
+    Remove remote-tracking references that no longer exist
+
+EXAMPLES:
+  git fetch
+  git fetch origin
+  git fetch --all
+  git fetch origin main`
+    },
+    pull: {
+      title: 'git pull',
+      content: `Fetch from and integrate with another repository.
+
+SYNTAX:
+  git pull [<options>] [<repository> [<refspec>...]]
+
+DESCRIPTION:
+  Fetches from a remote and merges into the current branch.
+
+OPTIONS:
+  --rebase
+    Rebase instead of merge
+  --ff-only
+    Only fast-forward if possible
+  --no-ff
+    Always create a merge commit
+
+EXAMPLES:
+  git pull
+  git pull origin main
+  git pull --rebase
+  git pull --rebase origin main`
+    },
+    push: {
+      title: 'git push',
+      content: `Update remote refs along with associated objects.
+
+SYNTAX:
+  git push [<options>] [<repository> [<refspec>...]]
+
+DESCRIPTION:
+  Uploads local branch commits to the remote repository.
+
+OPTIONS:
+  -u, --set-upstream
+    Set upstream for the branch
+  --force, -f
+    Force push (overwrites remote)
+  --all
+    Push all branches
+
+EXAMPLES:
+  git push
+  git push origin main
+  git push -u origin feature-x
+  git push --all`
+    },
+    reset: {
+      title: 'git reset',
+      content: `Reset current HEAD to the specified state.
+
+SYNTAX:
+  git reset [<mode>] [<commit>]
+
+DESCRIPTION:
+  Moves the current branch to the specified commit.
+
+MODES:
+  --soft
+    Keep changes staged
+  --mixed (default)
+    Keep changes in working directory, unstaged
+  --hard
+    Discard all changes
+
+EXAMPLES:
+  git reset HEAD~1
+  git reset --soft HEAD~1
+  git reset --hard HEAD~1
+  git reset --hard origin/main`
+    },
+    stash: {
+      title: 'git stash',
+      content: `Stash changes in a dirty working directory.
+
+SYNTAX:
+  git stash [push [<options>] [--] [<pathspec>...]]
+  git stash list
+  git stash pop [<stash>]
+  git stash apply [<stash>]
+  git stash drop [<stash>]
+
+DESCRIPTION:
+  Temporarily saves uncommitted changes.
+
+OPTIONS:
+  -u, --include-untracked
+    Include untracked files
+  -m, --message <msg>
+    Add a message to the stash
+
+EXAMPLES:
+  git stash
+  git stash list
+  git stash pop
+  git stash apply
+  git stash drop stash@{0}`
+    }
+  };
+
+  return (
+    <div className="flex h-full">
+      {/* Sidebar */}
+      <div className="w-64 flex-shrink-0 border-r border-slate-800 pr-4">
+        <h3 className="text-white font-semibold mb-4">Commands</h3>
+        <div className="space-y-1">
+          {Object.keys(gitCommands).map((key) => (
+            <button
+              key={key}
+              onClick={() => setSelectedCommand(key)}
+              className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                selectedCommand === key
+                  ? 'bg-emerald-500/20 text-emerald-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              {gitCommands[key].title}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 pl-6 overflow-y-auto">
+        <h2 className="text-2xl font-bold text-white mb-4">{gitCommands[selectedCommand].title}</h2>
+        <div className="prose prose-invert max-w-none">
+          <pre className="bg-slate-900 border border-slate-800 rounded-lg p-4 text-slate-300 font-mono text-sm whitespace-pre-wrap overflow-x-auto">
+            {gitCommands[selectedCommand].content}
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const GitLearningPlatform = () => {
   const [currentStage, setCurrentStage] = useState(null);
@@ -8,6 +459,10 @@ const GitLearningPlatform = () => {
   const [terminalOutput, setTerminalOutput] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [activeTab, setActiveTab] = useState('terminal'); // 'terminal' or 'docs'
+  const [rebaseTodoList, setRebaseTodoList] = useState(null);
+  const [rebaseTodoText, setRebaseTodoText] = useState('');
+  const [conflictEditor, setConflictEditor] = useState(null); // { file, ours, theirs, resolved }
   const terminalRef = useRef(null);
 
   const initialGitState = {
@@ -28,6 +483,8 @@ const GitLearningPlatform = () => {
     rebaseInProgress: false,
     rebaseSource: null,
     rebaseTarget: null,
+    rebaseCommits: [],
+    rebaseBaseCommit: null,
     cherryPickInProgress: false,
     tags: {},
     config: {
@@ -372,8 +829,8 @@ const GitLearningPlatform = () => {
             expectedCommand: 'cat config.txt'
           },
           {
-            instruction: 'After resolving, add the file to staging',
-            hints: ['Pretend you edited the file to resolve conflicts'],
+            instruction: 'Resolve the conflict in the editor that opened, then add the file to staging',
+            hints: ['Edit the file in the conflict editor to remove conflict markers', 'Click "Mark as Resolved" in the editor', 'Then run git add config.txt'],
             validator: (cmd) => cmd.trim() === 'git add config.txt',
             expectedCommand: 'git add config.txt'
           },
@@ -1077,7 +1534,10 @@ const GitLearningPlatform = () => {
             { hash: 'wip2222', message: 'WIP again', files: {} },
             { hash: 'wip3333', message: 'More WIP', files: {} },
             { hash: 'finish1', message: 'Finished feature', files: {} }
-          ]
+          ],
+          rebaseInProgress: false,
+          rebaseCommits: [],
+          rebaseBaseCommit: null
         }),
         steps: [
           {
@@ -1087,14 +1547,44 @@ const GitLearningPlatform = () => {
           },
           {
             instruction: 'Start interactive rebase for last 4 commits',
-            hints: ['Use git rebase -i HEAD~4'],
-            validator: (cmd) => cmd.trim() === 'git rebase -i HEAD~4' || cmd.trim() === 'git rebase --interactive HEAD~4',
+            hints: ['Use git rebase -i HEAD~4', 'This will open an editor to modify the commit history'],
+            validator: (cmd, state) => {
+              const trimmed = cmd.trim();
+              // Check if command matches - be flexible with variations
+              if (trimmed === 'git rebase -i HEAD~4' || 
+                  trimmed === 'git rebase --interactive HEAD~4') {
+                return true;
+              }
+              // Also accept if rebase actually started (state was updated)
+              if (state && state.rebaseInProgress) {
+                return true;
+              }
+              // Check for HEAD~4 pattern more flexibly
+              if (trimmed.includes('git rebase') && 
+                  (trimmed.includes('-i') || trimmed.includes('--interactive')) &&
+                  trimmed.includes('HEAD~4')) {
+                return true;
+              }
+              return false;
+            },
             expectedCommand: 'git rebase -i HEAD~4'
           },
           {
-            instruction: 'After editing, continue the rebase',
-            hints: ['Use git rebase --continue'],
-            validator: (cmd) => cmd.trim() === 'git rebase --continue',
+            instruction: 'In the rebase editor: Change "pick" to "squash" (or "s") for the 3 WIP commits to combine them, then click Continue',
+            hints: [
+              'The editor shows: pick wip1111 WIP, pick wip2222 WIP again, etc.',
+              'Change "pick" to "squash" (or "s") for commits wip1111, wip2222, and wip3333',
+              'Keep "pick" for finish1 (the last commit)',
+              'Example: pick wip1111 WIP → squash wip1111 WIP',
+              'After editing, click the "Continue" button in the editor'
+            ],
+            validator: (cmd, state, prevState) => {
+              // Check if command is continue - after continue, rebaseInProgress becomes false
+              const cmdMatches = cmd.trim() === 'git rebase --continue';
+              // Rebase was in progress before (prevState) and now it's complete (state.rebaseInProgress is false)
+              // OR if command matches and rebase completed successfully
+              return cmdMatches && (prevState?.rebaseInProgress === true && state.rebaseInProgress === false);
+            },
             expectedCommand: 'git rebase --continue'
           },
           {
@@ -1177,14 +1667,25 @@ const GitLearningPlatform = () => {
           },
           {
             instruction: 'Find and recover the lost commit',
-            hints: ['Use git checkout or git reset to recover'],
-            validator: (cmd) => cmd.trim().includes('lost222') || cmd.trim().includes('HEAD@{2}'),
+            hints: ['Use git checkout or git reset to recover', 'The lost commit hash is lost222'],
+            validator: (cmd, state) => {
+              const trimmed = cmd.trim();
+              // Accept checkout or reset with the lost commit hash
+              return (trimmed.includes('lost222') || trimmed.includes('HEAD@{2}')) &&
+                     (trimmed.startsWith('git checkout') || trimmed.startsWith('git reset'));
+            },
             expectedCommand: 'git checkout lost222'
           },
           {
             instruction: 'Create a branch to save the recovered commit',
-            hints: ['Use git branch <name>'],
-            validator: (cmd) => cmd.trim().startsWith('git branch recovered') || cmd.trim().startsWith('git checkout -b recovered'),
+            hints: ['Use git branch <name> to create a branch', 'You can use any branch name'],
+            validator: (cmd) => {
+              const trimmed = cmd.trim();
+              // Accept any branch name creation
+              return (trimmed.startsWith('git branch ') && trimmed.split(' ').length >= 3) ||
+                     (trimmed.startsWith('git checkout -b ') && trimmed.split(' ').length >= 4) ||
+                     (trimmed.startsWith('git switch -c ') && trimmed.split(' ').length >= 4);
+            },
             expectedCommand: 'git branch recovered'
           }
         ]
@@ -1290,10 +1791,11 @@ const GitLearningPlatform = () => {
     ]
   };
 
-  const executeGitCommand = (cmd, state) => {
+  const executeGitCommand = (cmd, state, rebaseTodoState = null, conflictResolvedText = null) => {
     const trimmed = cmd.trim();
     const newState = { ...state };
     let output = [];
+    let rebaseTodo = null;
 
     // Shell commands
     if (trimmed === 'ls' || trimmed === 'ls -la') {
@@ -1459,8 +1961,11 @@ const GitLearningPlatform = () => {
     }
     // Git add
     else if (trimmed.startsWith('git add ')) {
-      const file = trimmed.replace('git add ', '').trim();
-      if (file === '.') {
+      const args = trimmed.replace('git add ', '').trim();
+      const isAll = args === '.' || args === '-A' || args === '--all' || args.startsWith('-A ') || args.startsWith('--all ');
+      const isUpdate = args === '-u' || args === '--update' || args.startsWith('-u ') || args.startsWith('--update ');
+      
+      if (isAll || args === '.') {
         const allFiles = { ...state.workingDirectory };
         newState.stagedFiles = { ...state.stagedFiles, ...allFiles };
         const count = Object.keys(allFiles).length;
@@ -1469,53 +1974,190 @@ const GitLearningPlatform = () => {
         } else {
           output.push({ type: 'output', text: 'Nothing to add' });
         }
-      } else if (state.workingDirectory[file] || state.conflictState?.file === file) {
-        newState.stagedFiles = { ...state.stagedFiles, [file]: state.workingDirectory[file] || 'resolved' };
-        if (state.conflictState?.file === file) {
-          newState.conflictState = null;
+      } else if (isUpdate) {
+        const modifiedFiles = Object.keys(state.workingDirectory || {}).filter(
+          f => state.files[f] && state.workingDirectory[f] !== state.files[f]
+        );
+        modifiedFiles.forEach(f => {
+          newState.stagedFiles = { ...state.stagedFiles, [f]: state.workingDirectory[f] };
+        });
+        if (modifiedFiles.length > 0) {
+          output.push({ type: 'success', text: `Updated ${modifiedFiles.length} file(s)` });
+        } else {
+          output.push({ type: 'output', text: 'Nothing to update' });
         }
-        output.push({ type: 'success', text: `Added '${file}' to staging area` });
       } else {
-        output.push({ type: 'error', text: `fatal: pathspec '${file}' did not match any files` });
+        const files = args.split(/\s+/).filter(f => f && !f.startsWith('-'));
+        if (files.length === 0) {
+          output.push({ type: 'error', text: 'fatal: no files added' });
+        } else {
+          let addedCount = 0;
+          files.forEach(file => {
+            if (state.workingDirectory[file] || state.conflictState?.file === file) {
+              // If conflict was resolved via editor, use resolved text
+              const fileContent = (state.conflictState?.file === file && conflictResolvedText) 
+                ? conflictResolvedText 
+                : (state.workingDirectory[file] || 'resolved');
+              newState.stagedFiles = { ...state.stagedFiles, [file]: fileContent };
+              if (state.conflictState?.file === file) {
+                newState.conflictState = null;
+                newState.workingDirectory = { ...state.workingDirectory };
+                newState.workingDirectory[file] = fileContent;
+              }
+              addedCount++;
+            } else {
+              output.push({ type: 'error', text: `fatal: pathspec '${file}' did not match any files` });
+            }
+          });
+          if (addedCount > 0) {
+            output.push({ type: 'success', text: `Added ${addedCount} file(s) to staging area` });
+          }
+        }
       }
     }
     // Git commit
     else if (trimmed.startsWith('git commit')) {
       const msgMatch = trimmed.match(/-m\s+["']([^"']+)["']/);
       const message = msgMatch ? msgMatch[1] : 'Commit message';
+      const isAmend = trimmed.includes('--amend');
+      const isAll = trimmed.includes('-a') || trimmed.includes('--all');
       
-      if (Object.keys(state.stagedFiles).length === 0 && !state.conflictState) {
+      // Handle -a flag: stage all modified files
+      if (isAll && !isAmend) {
+        const modifiedFiles = Object.keys(state.workingDirectory || {}).filter(
+          f => state.files[f] && state.workingDirectory[f] !== state.files[f]
+        );
+        modifiedFiles.forEach(f => {
+          newState.stagedFiles = { ...state.stagedFiles, [f]: state.workingDirectory[f] };
+        });
+      }
+      
+      if (Object.keys(state.stagedFiles).length === 0 && !state.conflictState && !isAll) {
         output.push({ type: 'error', text: 'nothing to commit, working tree clean' });
       } else {
         const hash = Math.random().toString(36).substr(2, 7);
-        newState.commits = [...state.commits, {
-          hash,
-          message,
-          files: { ...state.stagedFiles },
-          branch: state.currentBranch
-        }];
+        const filesChanged = Object.keys(state.stagedFiles).length;
+        
+        if (isAmend && state.commits.length > 0) {
+          // Amend: replace last commit
+          const lastCommit = state.commits[state.commits.length - 1];
+          newState.commits = [...state.commits.slice(0, -1), {
+            hash,
+            message: msgMatch ? message : lastCommit.message,
+            files: { ...state.stagedFiles },
+            branch: state.currentBranch
+          }];
+          output.push({ type: 'success', text: `[${state.currentBranch} ${hash}] ${msgMatch ? message : lastCommit.message} (amended)` });
+        } else {
+          newState.commits = [...state.commits, {
+            hash,
+            message,
+            files: { ...state.stagedFiles },
+            branch: state.currentBranch
+          }];
+          output.push({ type: 'success', text: `[${state.currentBranch} ${hash}] ${message}` });
+        }
         newState.files = { ...state.files, ...state.stagedFiles };
         newState.stagedFiles = {};
         newState.conflictState = null;
-        output.push({ type: 'success', text: `[${state.currentBranch} ${hash}] ${message}` });
-        output.push({ type: 'output', text: ` ${Object.keys(state.stagedFiles).length} file(s) changed` });
+        if (filesChanged > 0) {
+          output.push({ type: 'output', text: ` ${filesChanged} file(s) changed` });
+        }
       }
     }
     // Git log
     else if (trimmed.startsWith('git log')) {
       const isOneline = trimmed.includes('--oneline');
-      const limitMatch = trimmed.match(/-(\d+)|-n\s*(\d+)/);
-      const limit = limitMatch ? parseInt(limitMatch[1] || limitMatch[2]) : null;
-      const branchMatch = trimmed.match(/git log\s+(\S+)/);
-      const targetBranch = branchMatch && !branchMatch[1].startsWith('-') ? branchMatch[1] : null;
+      const isGraph = trimmed.includes('--graph');
+      const isAll = trimmed.includes('--all');
+      const isStat = trimmed.includes('--stat');
+      const isPatch = trimmed.includes('-p') || trimmed.includes('--patch');
+      const limitMatch = trimmed.match(/-(\d+)|-n\s*(\d+)|--max-count\s*(\d+)/);
+      const limit = limitMatch ? parseInt(limitMatch[1] || limitMatch[2] || limitMatch[3]) : null;
+      const branchMatch = trimmed.match(/git log(?:\s+[^-]*)?\s+(\S+)/);
+      const targetBranch = branchMatch && !branchMatch[1].startsWith('-') && !branchMatch[1].match(/^\d+$/) ? branchMatch[1] : null;
+      
+      // Parse --author filter (handles --author="name" or --author=name or --author name)
+      let authorFilter = null;
+      // Try double-quoted first (handles --author="bob")
+      const authorDoubleQuoted = trimmed.match(/--author="([^"]+)"/);
+      if (authorDoubleQuoted) {
+        authorFilter = authorDoubleQuoted[1];
+      } else {
+        // Try single-quoted (handles --author='bob')
+        const authorSingleQuoted = trimmed.match(/--author='([^']+)'/);
+        if (authorSingleQuoted) {
+          authorFilter = authorSingleQuoted[1];
+        } else {
+          // Try unquoted with = (handles --author=bob)
+          const authorUnquoted = trimmed.match(/--author=([^\s]+)/);
+          if (authorUnquoted) {
+            authorFilter = authorUnquoted[1];
+          }
+        }
+      }
+      
+      // Parse -S (pickaxe) filter (handles -S "string with spaces" or -S string)
+      let pickaxeFilter = null;
+      // Try double-quoted first (handles -S "return null")
+      const pickaxeDoubleQuoted = trimmed.match(/-S\s+"([^"]+)"/);
+      if (pickaxeDoubleQuoted) {
+        pickaxeFilter = pickaxeDoubleQuoted[1];
+      } else {
+        // Try single-quoted (handles -S 'return null')
+        const pickaxeSingleQuoted = trimmed.match(/-S\s+'([^']+)'/);
+        if (pickaxeSingleQuoted) {
+          pickaxeFilter = pickaxeSingleQuoted[1];
+        } else {
+          // Try unquoted (handles -S return or -S null)
+          const pickaxeUnquoted = trimmed.match(/-S\s+([^\s]+)/);
+          if (pickaxeUnquoted) {
+            pickaxeFilter = pickaxeUnquoted[1];
+          }
+        }
+      }
       
       let commitsToShow = [...state.commits];
       
-      // If looking at a feature branch
-      if (targetBranch === 'feature' && state.featureCommits) {
+      // If on feature branch and no specific branch requested, show feature commits + base
+      if (state.currentBranch === 'feature' && !targetBranch && state.featureCommits && state.featureCommits.length > 0) {
+        // Show feature commits + base commits (main commits up to featureBranchBase)
+        const baseHash = state.featureBranchBase;
+        const baseIndex = state.commits.findIndex(c => c.hash === baseHash);
+        const baseCommits = baseIndex >= 0 ? state.commits.slice(0, baseIndex + 1) : state.commits.filter(c => c.branch === 'main' || !c.branch);
+        commitsToShow = [...baseCommits, ...state.featureCommits];
+      } else if (targetBranch === 'feature' && state.featureCommits) {
         commitsToShow = [...state.featureCommits];
       } else if (targetBranch?.startsWith('origin/') && state.remoteCommits?.origin) {
         commitsToShow = [...state.remoteCommits.origin];
+      } else if (isAll) {
+        // Show all branches
+        commitsToShow = [...state.commits];
+        if (state.featureCommits) {
+          commitsToShow = [...commitsToShow, ...state.featureCommits];
+        }
+      }
+      
+      // Apply author filter
+      if (authorFilter) {
+        const beforeCount = commitsToShow.length;
+        commitsToShow = commitsToShow.filter(commit => {
+          if (!commit.author) return false;
+          const authorMatch = commit.author.toLowerCase().includes(authorFilter.toLowerCase());
+          return authorMatch;
+        });
+      }
+      
+      // Apply pickaxe filter (-S)
+      if (pickaxeFilter) {
+        commitsToShow = commitsToShow.filter(commit => {
+          // Check if any file in the commit contains the search string
+          const hasString = Object.values(commit.files || {}).some(content => {
+            if (typeof content !== 'string') return false;
+            return content.includes(pickaxeFilter);
+          });
+          return hasString;
+        });
       }
       
       if (limit) {
@@ -1523,15 +2165,26 @@ const GitLearningPlatform = () => {
       }
       
       if (commitsToShow.length > 0) {
-        commitsToShow.slice().reverse().forEach(commit => {
+        commitsToShow.slice().reverse().forEach((commit, idx) => {
           if (isOneline) {
-            output.push({ type: 'output', text: `${commit.hash} ${commit.message}` });
+            const graphPrefix = isGraph ? (idx % 2 === 0 ? '* ' : '| ') : '';
+            output.push({ type: 'output', text: `${graphPrefix}${commit.hash} ${commit.message}` });
           } else {
+            if (isGraph && idx > 0) {
+              output.push({ type: 'output', text: '|' });
+            }
             output.push({ type: 'warning', text: `commit ${commit.hash}` });
             if (commit.author) {
               output.push({ type: 'output', text: `Author: ${commit.author}` });
             }
             output.push({ type: 'output', text: `\n    ${commit.message}\n` });
+            if (isStat) {
+              const fileCount = Object.keys(commit.files || {}).length;
+              output.push({ type: 'output', text: ` ${fileCount} file(s) changed` });
+            }
+            if (isPatch) {
+              output.push({ type: 'output', text: `diff --git a/file b/file\n+changes...` });
+            }
           }
         });
       } else {
@@ -1539,16 +2192,56 @@ const GitLearningPlatform = () => {
       }
     }
     // Git diff
-    else if (trimmed === 'git diff' || trimmed.startsWith('git diff ')) {
-      const file = trimmed.replace('git diff', '').trim() || Object.keys(state.workingDirectory).find(f => state.files[f]);
-      if (file && state.workingDirectory[file] && state.files[file]) {
-        output.push({ type: 'output', text: `diff --git a/${file} b/${file}` });
-        output.push({ type: 'output', text: 'index abc123..def456 100644' });
-        output.push({ type: 'error', text: `--- a/${file}` });
-        output.push({ type: 'success', text: `+++ b/${file}` });
-        output.push({ type: 'output', text: '@@ -1 +1 @@' });
-        output.push({ type: 'error', text: `-${state.files[file]}` });
-        output.push({ type: 'success', text: `+${state.workingDirectory[file]}` });
+    else if (trimmed.startsWith('git diff')) {
+      const isStaged = trimmed.includes('--staged') || trimmed.includes('--cached');
+      const isStat = trimmed.includes('--stat');
+      const file = trimmed.replace('git diff', '').replace('--staged', '').replace('--cached', '').replace('--stat', '').trim() || 
+                   Object.keys(state.workingDirectory).find(f => state.files[f]);
+      
+      if (isStaged) {
+        // Show staged changes
+        const stagedFile = file || Object.keys(state.stagedFiles)[0];
+        if (stagedFile && state.stagedFiles[stagedFile]) {
+          if (isStat) {
+            output.push({ type: 'output', text: ` ${stagedFile} | 1 +` });
+          } else {
+            output.push({ type: 'output', text: `diff --git a/${stagedFile} b/${stagedFile}` });
+            output.push({ type: 'output', text: 'index abc123..def456 100644' });
+            output.push({ type: 'error', text: `--- a/${stagedFile}` });
+            output.push({ type: 'success', text: `+++ b/${stagedFile}` });
+            output.push({ type: 'output', text: '@@ -1 +1 @@' });
+            output.push({ type: 'success', text: `+${state.stagedFiles[stagedFile]}` });
+          }
+        } else {
+          output.push({ type: 'output', text: '(no staged changes)' });
+        }
+      } else if (file && state.workingDirectory[file] && state.files[file]) {
+        // Show working directory changes
+        if (isStat) {
+          output.push({ type: 'output', text: ` ${file} | 1 +` });
+        } else {
+          output.push({ type: 'output', text: `diff --git a/${file} b/${file}` });
+          output.push({ type: 'output', text: 'index abc123..def456 100644' });
+          output.push({ type: 'error', text: `--- a/${file}` });
+          output.push({ type: 'success', text: `+++ b/${file}` });
+          output.push({ type: 'output', text: '@@ -1 +1 @@' });
+          output.push({ type: 'error', text: `-${state.files[file]}` });
+          output.push({ type: 'success', text: `+${state.workingDirectory[file]}` });
+        }
+      } else if (!file) {
+        // Show all changes
+        const modifiedFiles = Object.keys(state.workingDirectory).filter(
+          f => state.files[f] && state.workingDirectory[f] !== state.files[f]
+        );
+        if (modifiedFiles.length > 0) {
+          modifiedFiles.forEach(f => {
+            output.push({ type: 'output', text: `diff --git a/${f} b/${f}` });
+            output.push({ type: 'error', text: `-${state.files[f]}` });
+            output.push({ type: 'success', text: `+${state.workingDirectory[f]}` });
+          });
+        } else {
+          output.push({ type: 'output', text: '(no differences)' });
+        }
       } else {
         output.push({ type: 'output', text: '(no differences)' });
       }
@@ -1606,11 +2299,22 @@ const GitLearningPlatform = () => {
         newState.currentBranch = branchName;
         output.push({ type: 'success', text: `Switched to branch '${branchName}'` });
       } else if (branchName.match(/^[a-f0-9]+$/)) {
-        // Checking out a commit hash
-        newState.detachedHead = true;
-        newState.head = branchName;
-        output.push({ type: 'warning', text: `Note: switching to '${branchName}'.` });
-        output.push({ type: 'output', text: 'You are in "detached HEAD" state.' });
+        // Checking out a commit hash (including from reflog)
+        // Check if it's in reflog or commits
+        const inReflog = state.reflog?.some(e => e.hash === branchName || e.hash.startsWith(branchName));
+        const inCommits = state.commits.some(c => c.hash === branchName || c.hash.startsWith(branchName));
+        
+        if (inReflog || inCommits) {
+          newState.detachedHead = true;
+          newState.head = branchName;
+          output.push({ type: 'warning', text: `Note: switching to '${branchName}'.` });
+          output.push({ type: 'output', text: 'You are in "detached HEAD" state.' });
+          output.push({ type: 'output', text: 'You can look around, make experimental changes and commit them,' });
+          output.push({ type: 'output', text: 'and you can discard any commits you make in this state' });
+          output.push({ type: 'output', text: 'without impacting any branches by switching back to a branch.' });
+        } else {
+          output.push({ type: 'error', text: `error: pathspec '${branchName}' did not match any file(s) known to git` });
+        }
       } else {
         output.push({ type: 'error', text: `error: pathspec '${branchName}' did not match any file(s) known to git` });
       }
@@ -1629,6 +2333,18 @@ const GitLearningPlatform = () => {
         output.push({ type: 'output', text: `Auto-merging ${state.pendingConflict.file}` });
         output.push({ type: 'error', text: `CONFLICT (content): Merge conflict in ${state.pendingConflict.file}` });
         output.push({ type: 'error', text: 'Automatic merge failed; fix conflicts and then commit the result.' });
+        output.push({ type: 'system', text: 'Conflict editor opened. Resolve the conflict in the editor.' });
+        // Open conflict editor
+        return { 
+          newState, 
+          output, 
+          conflictEditor: {
+            file: state.pendingConflict.file,
+            ours: state.pendingConflict.ours,
+            theirs: state.pendingConflict.theirs,
+            resolved: `<<<<<<< HEAD\n${state.pendingConflict.ours}\n=======\n${state.pendingConflict.theirs}\n>>>>>>> ${branchName}`
+          }
+        };
       } else if (state.branches.includes(branchName)) {
         if (state.featureCommits) {
           newState.commits = [...state.commits, ...state.featureCommits];
@@ -1676,34 +2392,178 @@ const GitLearningPlatform = () => {
     // Git rebase
     else if (trimmed.startsWith('git rebase')) {
       if (trimmed === 'git rebase --continue') {
-        if (state.rebaseInProgress) {
+        if (state.rebaseInProgress && rebaseTodoState && rebaseTodoState.text) {
+          // Process the rebase todo list
+          const processedCommits = [];
+          const todoLines = rebaseTodoState.text.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+          
+          let lineIndex = 0;
+          todoLines.forEach(line => {
+            // Match: action hash message (message can contain spaces)
+            const match = line.match(/^(pick|p|reword|r|edit|e|squash|s|fixup|f|drop|d)\s+([a-f0-9]+)\s+(.+)$/);
+            if (match) {
+              const action = match[1];
+              const hash = match[2];
+              const message = match[3].trim();
+              const commit = state.rebaseCommits.find(c => c.hash === hash);
+              const isFirstCommit = lineIndex === 0;
+              
+              if (commit && action !== 'drop' && action !== 'd') {
+                // First commit cannot be squash/fixup - convert to pick
+                if ((action === 'squash' || action === 's' || action === 'fixup' || action === 'f') && isFirstCommit) {
+                  const newHash = Math.random().toString(36).substr(2, 7);
+                  processedCommits.push({
+                    ...commit,
+                    hash: newHash,
+                    message: commit.message
+                  });
+                } else if (action === 'squash' || action === 's' || action === 'fixup' || action === 'f') {
+                  // Merge with previous commit
+                  if (processedCommits.length > 0) {
+                    const last = processedCommits[processedCommits.length - 1];
+                    last.message = action === 'fixup' || action === 'f' 
+                      ? last.message 
+                      : `${last.message}\n\n${message}`;
+                    last.files = { ...last.files, ...commit.files };
+                  } else {
+                    // Fallback: use as pick if no previous commit
+                    const newHash = Math.random().toString(36).substr(2, 7);
+                    processedCommits.push({
+                      ...commit,
+                      hash: newHash,
+                      message: commit.message
+                    });
+                  }
+                } else {
+                  const newHash = Math.random().toString(36).substr(2, 7);
+                  processedCommits.push({
+                    ...commit,
+                    hash: newHash,
+                    message: (action === 'reword' || action === 'r') ? message : commit.message
+                  });
+                }
+              }
+              lineIndex++;
+            }
+          });
+          
+          // Update commits: keep commits before rebase base, then add processed ones
+          if (state.rebaseBaseCommit) {
+            const baseIndex = state.commits.findIndex(c => c.hash === state.rebaseBaseCommit);
+            if (baseIndex >= 0) {
+              // Keep everything up to and including the base commit
+              const beforeRebase = state.commits.slice(0, baseIndex + 1);
+              newState.commits = [...beforeRebase, ...processedCommits];
+            } else {
+              // Base commit not found, just replace the rebased commits
+              const rebaseStartIndex = state.commits.length - state.rebaseCommits.length;
+              newState.commits = [...state.commits.slice(0, rebaseStartIndex), ...processedCommits];
+            }
+          } else {
+            // No base commit (rebasing from start), replace all commits
+            newState.commits = processedCommits;
+          }
+          
+          newState.rebaseInProgress = false;
+          newState.rebaseCommits = [];
+          newState.rebaseBaseCommit = null;
+          rebaseTodo = { action: 'clear' };
+          output.push({ type: 'success', text: 'Successfully rebased and updated refs/heads/' + state.currentBranch });
+        } else if (state.rebaseInProgress) {
+          // Simple continue without todo list
           newState.rebaseInProgress = false;
           output.push({ type: 'success', text: 'Successfully rebased and updated refs/heads/' + state.currentBranch });
         } else {
           output.push({ type: 'error', text: 'error: No rebase in progress?' });
         }
+      } else if (trimmed === 'git rebase --abort') {
+        if (state.rebaseInProgress) {
+          newState.rebaseInProgress = false;
+          newState.rebaseCommits = [];
+          newState.rebaseBaseCommit = null;
+          rebaseTodo = { action: 'clear' };
+          output.push({ type: 'output', text: 'Rebase aborted' });
+        } else {
+          output.push({ type: 'error', text: 'error: No rebase in progress?' });
+        }
       } else if (trimmed.startsWith('git rebase -i') || trimmed.startsWith('git rebase --interactive')) {
-        newState.rebaseInProgress = true;
-        output.push({ type: 'system', text: 'Interactive rebase started.' });
-        output.push({ type: 'output', text: 'Commands:' });
-        output.push({ type: 'output', text: ' p, pick = use commit' });
-        output.push({ type: 'output', text: ' r, reword = use commit, but edit the commit message' });
-        output.push({ type: 'output', text: ' e, edit = use commit, but stop for amending' });
-        output.push({ type: 'output', text: ' s, squash = use commit, but meld into previous commit' });
-        output.push({ type: 'output', text: ' f, fixup = like "squash", but discard this commit\'s log message' });
-        output.push({ type: 'output', text: ' d, drop = remove commit' });
-        output.push({ type: 'output', text: '\n(Simulated: use "git rebase --continue" to finish)' });
+        // Parse HEAD~N or branch name
+        const match = trimmed.match(/git rebase (?:-i|--interactive)\s+(HEAD~(\d+)|(\S+))/);
+        let commitsToRebase = [];
+        let baseCommit = null;
+        
+        if (match) {
+          if (match[2]) {
+            // HEAD~N format
+            const count = parseInt(match[2]);
+            if (count > state.commits.length) {
+              output.push({ type: 'error', text: `fatal: invalid upstream 'HEAD~${count}'` });
+              return { newState, output, rebaseTodo, conflictEditor: null };
+            }
+            commitsToRebase = state.commits.slice(-count).reverse();
+            const baseIndex = state.commits.length - count - 1;
+            baseCommit = baseIndex >= 0 ? state.commits[baseIndex]?.hash : null;
+          } else if (match[3]) {
+            // Branch name
+            const targetBranch = match[3];
+            if (state.branches.includes(targetBranch)) {
+              baseCommit = state.commits.length > 0 ? state.commits[0]?.hash : null;
+              commitsToRebase = [...state.commits].reverse();
+            } else {
+              output.push({ type: 'error', text: `fatal: invalid upstream '${targetBranch}'` });
+              return { newState, output, rebaseTodo, conflictEditor: null };
+            }
+          }
+        } else {
+          // Default: rebase last 4 commits (or all if fewer than 4)
+          const count = Math.min(4, state.commits.length);
+          commitsToRebase = state.commits.slice(-count).reverse();
+          const baseIndex = state.commits.length - count - 1;
+          baseCommit = baseIndex >= 0 ? state.commits[baseIndex]?.hash : null;
+        }
+        
+        if (commitsToRebase.length > 0) {
+          newState.rebaseInProgress = true;
+          newState.rebaseCommits = commitsToRebase;
+          newState.rebaseBaseCommit = baseCommit;
+          
+          // Create todo list text with clear instructions
+          const todoText = commitsToRebase.map((commit, idx) => 
+            `pick ${commit.hash} ${commit.message}`
+          ).join('\n') + '\n\n# ============================================\n# INSTRUCTIONS:\n# ============================================\n# Change the first word on each line to modify commits:\n#\n#   pick (or p) = keep this commit as-is\n#   reword (or r) = keep commit but change its message\n#   edit (or e) = stop here to modify the commit\n#   squash (or s) = combine with previous commit\n#   fixup (or f) = like squash, but discard message\n#   drop (or d) = remove this commit\n#\n# Example: To combine WIP commits, change:\n#   pick wip1111 WIP\n#   pick wip2222 WIP again\n#\n# To:\n#   pick wip1111 WIP\n#   squash wip2222 WIP again\n#\n# ============================================\n# Rebase commands:\n# ============================================\n# p, pick = use commit\n# r, reword = use commit, but edit the commit message\n# e, edit = use commit, but stop for amending\n# s, squash = use commit, but meld into previous commit\n# f, fixup = like "squash", but discard this commit\'s log message\n# d, drop = remove commit';
+          
+          rebaseTodo = { action: 'open', commits: commitsToRebase, text: todoText };
+          
+          output.push({ type: 'system', text: 'Interactive rebase started. Edit the todo list below and save to continue.' });
+          output.push({ type: 'output', text: '\nRebase todo list opened in editor. Edit the commands above.' });
+        } else {
+          output.push({ type: 'error', text: 'fatal: no commits to rebase' });
+        }
       } else {
         const targetBranch = trimmed.replace('git rebase ', '').trim();
         if (state.branches.includes(targetBranch) || targetBranch === 'main') {
           newState.rebaseInProgress = false;
           newState.rebaseTarget = targetBranch;
-          // Simulate successful rebase
-          if (state.featureCommits) {
+          // Simulate successful rebase - rebase feature commits on top of main
+          if (state.featureCommits && state.currentBranch === 'feature') {
+            // Get all main commits (up to and including the target branch's latest)
+            const mainCommits = state.commits.filter(c => c.branch === 'main' || !c.branch || c.hash === state.featureBranchBase);
+            // Rebase feature commits with new hashes
+            const rebasedFeatureCommits = state.featureCommits.map(c => ({
+              ...c,
+              hash: Math.random().toString(36).substr(2, 7), // New hash after rebase
+              branch: 'feature'
+            }));
+            // Combine: main commits + rebased feature commits
+            newState.commits = [...mainCommits, ...rebasedFeatureCommits];
+            // Update featureCommits to reflect rebased state
+            newState.featureCommits = rebasedFeatureCommits;
+          } else if (state.featureCommits) {
+            // Fallback for other cases
             const mainCommits = state.commits.filter(c => c.branch === 'main' || !c.branch);
             const featureCommits = state.featureCommits.map(c => ({
               ...c,
-              hash: Math.random().toString(36).substr(2, 7) // New hash after rebase
+              hash: Math.random().toString(36).substr(2, 7)
             }));
             newState.commits = [...mainCommits, ...featureCommits];
           }
@@ -2031,7 +2891,7 @@ const GitLearningPlatform = () => {
       output.push({ type: 'output', text: `Type 'help' or 'git --help' for available commands.` });
     }
 
-    return { newState, output };
+    return { newState, output, rebaseTodo };
   };
 
   const handleCommandSubmit = (e) => {
@@ -2039,7 +2899,9 @@ const GitLearningPlatform = () => {
     if (!userInput.trim()) return;
 
     const output = [...terminalOutput, { type: 'input', text: `$ ${userInput}` }];
-    const { newState, output: cmdOutput, clear } = executeGitCommand(userInput, gitState);
+    const rebaseTodoState = rebaseTodoList ? { commits: rebaseTodoList, text: rebaseTodoText } : null;
+    const conflictResolvedText = conflictEditor ? conflictEditor.resolved : null;
+    const { newState, output: cmdOutput, clear, rebaseTodo, conflictEditor: newConflictEditor } = executeGitCommand(userInput, gitState, rebaseTodoState, conflictResolvedText);
     
     if (clear) {
       setTerminalOutput([]);
@@ -2048,13 +2910,53 @@ const GitLearningPlatform = () => {
       setTerminalOutput(output);
     }
     
+    // Handle rebase todo
+    if (rebaseTodo) {
+      if (rebaseTodo.action === 'open') {
+        setRebaseTodoList(rebaseTodo.commits);
+        setRebaseTodoText(rebaseTodo.text);
+      } else if (rebaseTodo.action === 'clear') {
+        setRebaseTodoList(null);
+        setRebaseTodoText('');
+      }
+    }
+    
+    // Handle conflict editor
+    if (newConflictEditor) {
+      setConflictEditor(newConflictEditor);
+    } else if (conflictEditor && userInput.trim().startsWith('git add ') && userInput.includes(conflictEditor.file)) {
+      // Conflict resolved and file added - use resolved text
+      const resolvedText = conflictEditor.resolved;
+      newState.workingDirectory = {
+        ...newState.workingDirectory,
+        [conflictEditor.file]: resolvedText
+      };
+      setConflictEditor(null);
+    }
+    
     setGitState(newState);
 
     // Validate step
     const allStages = [...stages.beginner, ...stages.intermediate, ...stages.advanced, ...stages.remote, ...stages.expert];
     const stageData = allStages.find(s => s.id === currentStage);
     
-    if (stageData?.steps[currentStep]?.validator(userInput, newState)) {
+    // Validate step - call validator with all params (validators can ignore extra params)
+    let isValid = false;
+    if (stageData && stageData.steps && stageData.steps[currentStep]) {
+      const validator = stageData.steps[currentStep].validator;
+      if (validator) {
+        try {
+          const result = validator(userInput, newState, gitState);
+          // Accept any truthy value (true, or any non-false/non-undefined value)
+          isValid = !!result;
+        } catch (e) {
+          console.error('Validator error:', e, { userInput, currentStage, currentStep, stageData: stageData?.id });
+          isValid = false;
+        }
+      }
+    }
+    
+    if (isValid) {
       setShowHint(false);
       setTimeout(() => {
         setTerminalOutput(prev => [...prev, { type: 'success', text: '✓ Correct!' }]);
@@ -2094,6 +2996,9 @@ const GitLearningPlatform = () => {
     setCurrentStep(0);
     setGitState(initialState);
     setShowHint(false);
+    setRebaseTodoList(null);
+    setRebaseTodoText('');
+    setActiveTab('terminal');
     setTerminalOutput([
       { type: 'system', text: '═══════════════════════════════════════════════' },
       { type: 'system', text: '  Git Terminal Simulator' },
@@ -2302,51 +3207,242 @@ const GitLearningPlatform = () => {
           </div>
         </div>
 
-        {/* Terminal */}
+        {/* Terminal / Documentation Tabs */}
         <div className="flex-1 flex flex-col min-h-[500px]">
-          <div className="bg-slate-900 rounded-t-xl border border-slate-800 border-b-0 px-4 py-2 flex items-center gap-2">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500/80" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-              <div className="w-3 h-3 rounded-full bg-green-500/80" />
-            </div>
-            <span className="text-slate-400 text-sm ml-2 font-mono">~/project</span>
+          {/* Tabs */}
+          <div className="flex gap-2 mb-2">
+            <button
+              onClick={() => setActiveTab('terminal')}
+              className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                activeTab === 'terminal'
+                  ? 'bg-slate-900 text-white border-t border-l border-r border-slate-800'
+                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
+              }`}
+            >
+              <Terminal className="w-4 h-4 inline mr-2" />
+              Terminal
+            </button>
+            <button
+              onClick={() => setActiveTab('docs')}
+              className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                activeTab === 'docs'
+                  ? 'bg-slate-900 text-white border-t border-l border-r border-slate-800'
+                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
+              }`}
+            >
+              <FileText className="w-4 h-4 inline mr-2" />
+              Documentation
+            </button>
           </div>
-          
-          <div 
-            ref={terminalRef}
-            className="flex-1 bg-slate-950 border border-slate-800 border-t-0 rounded-b-xl p-4 font-mono text-sm overflow-y-auto"
-          >
-            {terminalOutput.map((line, idx) => (
-              <div
-                key={idx}
-                className={`whitespace-pre-wrap ${
-                  line.type === 'input' ? 'text-cyan-400' :
-                  line.type === 'error' ? 'text-red-400' :
-                  line.type === 'success' ? 'text-emerald-400' :
-                  line.type === 'warning' ? 'text-yellow-400' :
-                  line.type === 'system' ? 'text-purple-400' :
-                  'text-slate-300'
-                }`}
-              >
-                {line.text}
+
+          {/* Terminal Tab */}
+          {activeTab === 'terminal' && (
+            <>
+              <div className="bg-slate-900 rounded-t-xl border border-slate-800 border-b-0 px-4 py-2 flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                </div>
+                <span className="text-slate-400 text-sm ml-2 font-mono">~/project</span>
               </div>
-            ))}
-            
-            <form onSubmit={handleCommandSubmit} className="flex items-center mt-2">
-              <span className="text-emerald-400 mr-2">$</span>
-              <input
-                type="text"
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                className="flex-1 bg-transparent outline-none text-white caret-emerald-400"
-                placeholder="Type your command..."
-                autoFocus
-                spellCheck={false}
-              />
-            </form>
-          </div>
+              
+              <div 
+                ref={terminalRef}
+                className="flex-1 bg-slate-950 border border-slate-800 border-t-0 rounded-b-xl p-4 font-mono text-sm overflow-y-auto"
+              >
+                {terminalOutput.map((line, idx) => (
+                  <div
+                    key={idx}
+                    className={`whitespace-pre-wrap ${
+                      line.type === 'input' ? 'text-cyan-400' :
+                      line.type === 'error' ? 'text-red-400' :
+                      line.type === 'success' ? 'text-emerald-400' :
+                      line.type === 'warning' ? 'text-yellow-400' :
+                      line.type === 'system' ? 'text-purple-400' :
+                      'text-slate-300'
+                    }`}
+                  >
+                    {line.text}
+                  </div>
+                ))}
+                
+                <form onSubmit={handleCommandSubmit} className="flex items-center mt-2">
+                  <span className="text-emerald-400 mr-2">$</span>
+                  <input
+                    type="text"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    className="flex-1 bg-transparent outline-none text-white caret-emerald-400"
+                    placeholder="Type your command..."
+                    autoFocus
+                    spellCheck={false}
+                  />
+                </form>
+              </div>
+            </>
+          )}
+
+          {/* Documentation Tab */}
+          {activeTab === 'docs' && (
+            <div className="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-6 overflow-y-auto">
+              <DocumentationContent />
+            </div>
+          )}
         </div>
+
+        {/* Rebase Todo Editor Modal */}
+        {rebaseTodoList && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" style={{ pointerEvents: 'none' }}>
+            <div style={{ pointerEvents: 'auto' }} className="w-full h-full flex items-center justify-center">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[85vh] flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-white">Interactive Rebase - Edit Todo List</h2>
+                <button
+                  onClick={() => {
+                    setRebaseTodoList(null);
+                    setRebaseTodoText('');
+                  }}
+                  className="text-slate-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {/* Instructions Panel */}
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 mb-4">
+                <h3 className="text-emerald-400 font-semibold mb-2">📝 How to Edit:</h3>
+                <ul className="text-sm text-slate-300 space-y-1 list-disc list-inside">
+                  <li>Change the first word on each line to modify commits</li>
+                  <li><code className="text-emerald-400">pick</code> or <code className="text-emerald-400">p</code> = keep commit as-is</li>
+                  <li><code className="text-emerald-400">squash</code> or <code className="text-emerald-400">s</code> = combine with previous commit</li>
+                  <li><code className="text-emerald-400">reword</code> or <code className="text-emerald-400">r</code> = change commit message</li>
+                  <li><code className="text-emerald-400">drop</code> or <code className="text-emerald-400">d</code> = remove commit</li>
+                </ul>
+                <p className="text-sm text-slate-400 mt-2">
+                  <strong>Example:</strong> To combine WIP commits, change <code className="text-emerald-400">pick</code> to <code className="text-emerald-400">squash</code> for the commits you want to merge.
+                </p>
+              </div>
+              
+              <div className="flex-1 mb-4 min-h-[300px]">
+                <textarea
+                  value={rebaseTodoText}
+                  onChange={(e) => setRebaseTodoText(e.target.value)}
+                  className="w-full h-full bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-sm text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  spellCheck={false}
+                  placeholder="Edit the rebase todo list..."
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => {
+                    setRebaseTodoList(null);
+                    setRebaseTodoText('');
+                    const output = [...terminalOutput, { type: 'input', text: '$ git rebase --abort' }];
+                    const { newState, output: cmdOutput } = executeGitCommand('git rebase --abort', gitState, null);
+                    setTerminalOutput([...output, ...cmdOutput]);
+                    setGitState(newState);
+                  }}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
+                >
+                  Abort
+                </button>
+                <button
+                  onClick={() => {
+                    const output = [...terminalOutput, { type: 'input', text: '$ git rebase --continue' }];
+                    const rebaseTodoState = { commits: rebaseTodoList, text: rebaseTodoText };
+                    const { newState, output: cmdOutput, rebaseTodo } = executeGitCommand('git rebase --continue', gitState, rebaseTodoState);
+                    setTerminalOutput([...output, ...cmdOutput]);
+                    if (rebaseTodo && rebaseTodo.action === 'clear') {
+                      setRebaseTodoList(null);
+                      setRebaseTodoText('');
+                    }
+                    setGitState(newState);
+                  }}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict Resolution Editor Modal */}
+        {conflictEditor && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" style={{ pointerEvents: 'none' }}>
+            <div style={{ pointerEvents: 'auto' }} className="w-full h-full flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[85vh] flex flex-col shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-white">Resolve Merge Conflict - {conflictEditor.file}</h2>
+                <button
+                  onClick={() => setConflictEditor(null)}
+                  className="text-slate-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {/* Instructions Panel */}
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-4">
+                <h3 className="text-yellow-400 font-semibold mb-2">⚠️ Conflict Resolution:</h3>
+                <ul className="text-sm text-slate-300 space-y-1 list-disc list-inside">
+                  <li>Edit the file below to resolve the conflict</li>
+                  <li>Remove the conflict markers: <code className="text-yellow-400">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code className="text-yellow-400">=======</code>, <code className="text-yellow-400">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></li>
+                  <li>Keep the content you want, or combine both versions</li>
+                  <li>After editing, click "Mark as Resolved" and then run <code className="text-emerald-400">git add {conflictEditor.file}</code></li>
+                </ul>
+                <div className="mt-3 grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <p className="text-slate-400 mb-1">HEAD (current branch):</p>
+                    <pre className="bg-slate-950 p-2 rounded text-slate-300">{conflictEditor.ours}</pre>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 mb-1">Incoming changes:</p>
+                    <pre className="bg-slate-950 p-2 rounded text-slate-300">{conflictEditor.theirs}</pre>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex-1 mb-4 min-h-[300px]">
+                <textarea
+                  value={conflictEditor.resolved}
+                  onChange={(e) => setConflictEditor({ ...conflictEditor, resolved: e.target.value })}
+                  className="w-full h-full bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-sm text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  spellCheck={false}
+                  placeholder="Edit to resolve conflict..."
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setConflictEditor(null)}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // Update working directory with resolved content
+                    setGitState(prev => ({
+                      ...prev,
+                      workingDirectory: {
+                        ...prev.workingDirectory,
+                        [conflictEditor.file]: conflictEditor.resolved
+                      }
+                    }));
+                    setConflictEditor(null);
+                    setTerminalOutput(prev => [...prev, { type: 'system', text: 'Conflict resolved. Run "git add ' + conflictEditor.file + '" to stage the resolved file.' }]);
+                  }}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                >
+                  Mark as Resolved
+                </button>
+              </div>
+            </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
