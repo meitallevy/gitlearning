@@ -365,6 +365,18 @@
   background: #020617;
 }
 
+.git-platform-container-test-mode {
+  overflow-y: auto;
+}
+
+.git-platform-container-test-mode .git-platform-main {
+  overflow: visible;
+}
+
+.git-platform-container-test-mode .git-platform-content {
+  overflow: visible;
+}
+
 /* Header Styles */
 .git-platform-header {
   background: rgba(15, 23, 42, 0.95);

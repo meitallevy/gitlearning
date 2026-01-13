@@ -623,7 +623,7 @@ const GitLearningPlatform = () => {
   const currentStageData = allStages.find(s => s.id === currentStage);
 
   return (
-    <div className="git-platform-container">
+    <div className={`git-platform-container ${showTest ? 'git-platform-container-test-mode' : ''}`}>
       {/* Header */}
       <div className="git-platform-header">
         <div className="git-platform-header-content">
