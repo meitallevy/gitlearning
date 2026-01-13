@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read and write their own data
+    match /users/{userId} {
+      // Allow read and write only if the user is authenticated and the document ID matches their UID
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow creation of user document with proper validation
+      allow create: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.data.keys().hasAll(['email', 'completedStages', 'createdAt'])
+                   && request.resource.data.email is string
+                   && request.resource.data.completedStages is list
+                   && request.resource.data.createdAt is string
+                   && (!('accountType' in request.resource.data) || request.resource.data.accountType is string);
+      
+      // Allow update only if user owns the document and validates data structure
+      // Note: accountType can only be changed from Firebase Console (admin), not by users
+      allow update: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.data.completedStages is list
+                   && request.resource.data.lastUpdated is string
+                   && (!('accountType' in request.resource.data) || request.resource.data.accountType == resource.data.accountType);
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

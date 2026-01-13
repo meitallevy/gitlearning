@@ -1,0 +1,24 @@
+<svg width="320" height="64" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark grey background -->
+  <rect width="320" height="64" fill="#1a1a1a"/>
+  
+  <!-- Dark grey rectangular element with rounded bottom corners -->
+  <rect x="8" y="8" width="304" height="48" rx="8" ry="8" fill="#2d2d2d"/>
+  
+  <!-- V shape with gradient (purple to light blue) -->
+  <defs>
+    <linearGradient id="vGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#60a5fa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- V shape -->
+  <path d="M 24 48 L 40 16 L 56 48 Z" fill="url(#vGradient)"/>
+  
+  <!-- Yellow lightning bolt overlaid on V -->
+  <path d="M 35 28 L 42 16 L 38 28 L 45 40 L 38 32 L 31 40 Z" fill="#fbbf24" stroke="#fbbf24" stroke-width="1"/>
+  
+  <!-- Text "NeatTeam's Git Academy" in light grey -->
+  <text x="72" y="38" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#d1d5db">NeatTeam's Git Academy</text>
+</svg>

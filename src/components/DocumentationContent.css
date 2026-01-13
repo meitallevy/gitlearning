@@ -1,0 +1,222 @@
+/* Documentation Content Component Styles */
+
+.docs-container {
+  display: flex;
+  height: 100%;
+  gap: 0;
+}
+
+.docs-sidebar {
+  width: 16rem;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(30, 41, 59, 0.8);
+  padding-right: 1rem;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.docs-sidebar-title {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+}
+
+.docs-sidebar-commands {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.docs-command-button {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.docs-command-button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #34d399, #22d3ee);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.2s;
+}
+
+.docs-command-button:hover {
+  color: white;
+  background: rgba(15, 23, 42, 0.6);
+  transform: translateX(4px);
+}
+
+.docs-command-button:hover::before {
+  transform: scaleY(1);
+}
+
+.docs-command-button-active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.1));
+  color: #34d399;
+  font-weight: 500;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.1);
+}
+
+.docs-command-button-active::before {
+  transform: scaleY(1);
+}
+
+.docs-content {
+  flex: 1;
+  padding-left: 1.5rem;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.docs-content-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(52, 211, 153, 0.3);
+  background: linear-gradient(135deg, #34d399, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.docs-content-wrapper {
+  max-width: none;
+}
+
+.docs-content-text {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  color: #cbd5e1;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  line-height: 1.8;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  position: relative;
+  margin: 0;
+}
+
+.docs-content-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent);
+}
+
+.docs-content-text code {
+  color: #34d399;
+  font-weight: 500;
+}
+
+.docs-content-text strong {
+  color: white;
+  font-weight: 600;
+}
+
+/* Scrollbar for sidebar */
+.docs-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.docs-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.5);
+  border-radius: 3px;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.7);
+}
+
+/* Scrollbar for content */
+.docs-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.docs-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docs-content::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.5);
+  border-radius: 4px;
+}
+
+.docs-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .docs-container {
+    flex-direction: column;
+  }
+  
+  .docs-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+    padding-right: 0;
+    padding-bottom: 1rem;
+    max-height: 200px;
+  }
+  
+  .docs-content {
+    padding-left: 0;
+    padding-top: 1rem;
+  }
+  
+  .docs-sidebar-commands {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .docs-command-button {
+    width: auto;
+    min-width: 120px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
