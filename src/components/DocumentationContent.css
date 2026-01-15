@@ -24,6 +24,48 @@
   border-bottom: 1px solid rgba(30, 41, 59, 0.5);
 }
 
+.docs-search-container {
+  margin-bottom: 1rem;
+}
+
+.docs-search-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.docs-search-input::placeholder {
+  color: #64748b;
+}
+
+.docs-search-input:focus {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1);
+}
+
+.docs-search-highlight {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.4), rgba(34, 211, 238, 0.4));
+  color: #34d399;
+  font-weight: 600;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.docs-no-results {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
 .docs-sidebar-commands {
   display: flex;
   flex-direction: column;

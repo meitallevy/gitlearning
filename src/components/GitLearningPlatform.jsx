@@ -36,6 +36,7 @@ const GitLearningPlatform = () => {
   const terminalRef = useRef(null);
   const inputRef = useRef(null);
   const konamiTimeoutRef = useRef(null);
+  const isLoadingProgressRef = useRef(false); // Track if we're currently loading progress
 
   const initialGitState = {
     initialized: false,
@@ -79,6 +80,7 @@ const GitLearningPlatform = () => {
     }
 
     const loadUserProgress = async () => {
+      isLoadingProgressRef.current = true;
       setLoadingProgress(true);
       
       if (currentUser) {
@@ -90,6 +92,9 @@ const GitLearningPlatform = () => {
             const data = userDoc.data();
             if (data.completedStages && Array.isArray(data.completedStages)) {
               setCompletedStages(new Set(data.completedStages));
+            } else {
+              // If completedStages is missing or invalid, initialize as empty
+              setCompletedStages(new Set());
             }
             // Load account type (default to 'regular' if not set)
             if (data.accountType) {
@@ -105,6 +110,7 @@ const GitLearningPlatform = () => {
               accountType: 'regular', // Default account type
               createdAt: new Date().toISOString()
             });
+            setCompletedStages(new Set());
             setAccountType('regular');
           }
         } catch (error) {
@@ -112,6 +118,10 @@ const GitLearningPlatform = () => {
         } finally {
           setLoadingProgress(false);
           setProgressLoaded(true);
+          // Wait a bit before allowing saves to prevent race conditions
+          setTimeout(() => {
+            isLoadingProgressRef.current = false;
+          }, 1000);
         }
       } else {
         // No user logged in - reset progress
@@ -119,6 +129,7 @@ const GitLearningPlatform = () => {
         setAccountType('regular');
         setLoadingProgress(false);
         setProgressLoaded(true);
+        isLoadingProgressRef.current = false;
       }
     };
 
@@ -127,20 +138,25 @@ const GitLearningPlatform = () => {
 
   // Save user progress to Firestore when completedStages changes
   useEffect(() => {
-    // Don't save if still loading or if no user is logged in
-    if (authLoading || !progressLoaded || !currentUser) {
+    // Don't save if still loading, if we're loading progress, or if no user is logged in
+    if (authLoading || !progressLoaded || !currentUser || isLoadingProgressRef.current) {
       return;
     }
 
     const saveUserProgress = async () => {
       try {
         const userDocRef = doc(db, 'users', currentUser.uid);
-        await updateDoc(userDocRef, {
+        // Use setDoc with merge: true instead of updateDoc
+        // This will create the document if it doesn't exist, or update it if it does
+        // This prevents errors if the document was deleted or doesn't exist
+        await setDoc(userDocRef, {
+          email: currentUser.email,
           completedStages: Array.from(completedStages),
           lastUpdated: new Date().toISOString()
-        });
+        }, { merge: true });
       } catch (error) {
         console.error('Error saving user progress:', error);
+        // If save fails, log it but don't throw - we don't want to break the UI
       }
     };
 
